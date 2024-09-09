@@ -1,12 +1,12 @@
 {
-    "name": "pocket-sense-chat",
-    "version": "1.0.0",
-    "main": "api/index.js",
-    "dependencies": {
-        "express": "^4.17.1",
-        "socket.io": "^4.1.2"
-    },
-    "scripts": {
-        "start": "node api/index.js"
-    }
+  "name": "pocket-sense-chat",
+  "version": "1.0.0",
+  "main": "api/index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.1.2"
+  },
+  "scripts": {
+    "start": "node api/index.js"
+  }
 }
