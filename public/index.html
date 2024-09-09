@@ -4,51 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pocket Sense Chat Room</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="login">
         <h1>Welcome to Pocket Sense</h1>
+        <p>Financial freedom starts with knowledge</p>
+        <h2>Join Chat Room</h2>
         <input type="text" id="username" placeholder="Enter username">
-        <button onclick="join()">Join Chat</button>
+        <button onclick="login()">Join Chat</button>
     </div>
 
     <div id="chat" style="display: none;">
-        <h2>Chat Room</h2>
-        <div id="messages"></div>
+        <div id="chat-container">
+            <div id="sidebar">
+                <h2>Chat Rooms</h2>
+                <div id="rooms">
+                    <button onclick="joinRoom('general')">General</button>
+                    <button onclick="joinRoom('investing')">Investing</button>
+                    <button onclick="joinRoom('budgeting')">Budgeting</button>
+                    <button onclick="joinRoom('savings')">Savings</button>
+                </div>
+                <h2>Online Users</h2>
+                <div id="online-users"></div>
+            </div>
+            <div id="main-chat">
+                <h2 id="room-header"></h2>
+                <div id="messages"></div>
+                <div id="typing"></div>
+                <div id="input-area">
+                    <input type="text" id="m" autocomplete="off" placeholder="Type a message...">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+            <div id="room-sidebar">
+                <h2>Room Users</h2>
+                <div id="room-users"></div>
+            </div>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-
-        socket.on('connect', () => {
-            console.log('Connected to server');
-        });
-
-        socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
-        });
-
-        function join() {
-            const username = document.getElementById('username').value.trim();
-            if (username) {
-                console.log('Attempting to join with username:', username);
-                socket.emit('join', username);
-            } else {
-                alert('Please enter a username');
-            }
-        }
-
-        socket.on('join success', (username) => {
-            console.log('Join successful:', username);
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('chat').style.display = 'block';
-        });
-
-        socket.on('user joined', (username) => {
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>${username} has joined the chat</p>`;
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
