@@ -4,43 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pocket Sense Chat Room</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="login">
         <h1>Welcome to Pocket Sense</h1>
-        <p>Financial freedom starts with knowledge</p>
-        <h2>Join Chat Room</h2>
         <input type="text" id="username" placeholder="Enter username">
-        <button onclick="login()">Join Chat</button>
+        <button onclick="join()">Join Chat</button>
     </div>
 
     <div id="chat" style="display: none;">
-        <p>Chat room entered successfully!</p>
+        <h2>Chat Room</h2>
+        <div id="messages"></div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-
-        function login() {
-            console.log('Login function called');
-            const username = document.getElementById('username').value.trim();
-            if (username) {
-                console.log('Attempting to join with username:', username);
-                socket.emit('new user', { username }, (response) => {
-                    console.log('Server response:', response);
-                    if (response.success) {
-                        document.getElementById('login').style.display = 'none';
-                        document.getElementById('chat').style.display = 'block';
-                    } else {
-                        alert('Username already taken');
-                    }
-                });
-            } else {
-                alert('Please enter a username');
-            }
-        }
 
         socket.on('connect', () => {
             console.log('Connected to server');
@@ -48,6 +27,27 @@
 
         socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
+        });
+
+        function join() {
+            const username = document.getElementById('username').value.trim();
+            if (username) {
+                console.log('Attempting to join with username:', username);
+                socket.emit('join', username);
+            } else {
+                alert('Please enter a username');
+            }
+        }
+
+        socket.on('join success', (username) => {
+            console.log('Join successful:', username);
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('chat').style.display = 'block';
+        });
+
+        socket.on('user joined', (username) => {
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p>${username} has joined the chat</p>`;
         });
     </script>
 </body>
