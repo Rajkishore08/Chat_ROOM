@@ -79,8 +79,9 @@ body {
     text-align: left;
 }
 
-#rooms button:hover {
-    background-color: #d8dadf;
+#rooms button:hover, #rooms button.active {
+    background-color: #1877f2;
+    color: white;
 }
 
 #main-chat {
@@ -152,6 +153,15 @@ button:hover {
     padding: 10px;
     border-radius: 18px;
     display: inline-block;
+}
+
+.message.self {
+    margin-left: auto;
+}
+
+.message.self .content {
+    background-color: #1877f2;
+    color: white;
 }
 
 #typing {
