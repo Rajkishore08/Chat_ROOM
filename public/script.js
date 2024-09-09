@@ -3,27 +3,30 @@ let username;
 let currentRoom = 'general';
 
 function login() {
-    username = document.getElementById('username').value;
+    username = document.getElementById('username').value.trim();
     if (username) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomId = urlParams.get('room');
-        socket.emit('new user', { username, roomId }, (data) => {
+        socket.emit('new user', { username }, (data) => {
             if (data.success) {
                 document.getElementById('login').style.display = 'none';
                 document.getElementById('chat').style.display = 'flex';
                 updateRoomHeader();
+                joinRoom('general');
             } else {
                 alert('Username already taken');
             }
         });
+    } else {
+        alert('Please enter a username');
     }
 }
 
 function sendMessage() {
     const input = document.getElementById('m');
-    if (input.value) {
-        socket.emit('chat message', { message: input.value, room: currentRoom });
+    const message = input.value.trim();
+    if (message) {
+        socket.emit('chat message', { message, room: currentRoom });
         input.value = '';
+        addMessage(username, message, 'self');
     }
 }
 
@@ -34,6 +37,10 @@ function joinRoom(room) {
         currentRoom = room;
         updateRoomHeader();
         clearMessages();
+        document.querySelectorAll('#rooms button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`#rooms button[onclick="joinRoom('${room}')"]`).classList.add('active');
     }
 }
 
@@ -45,35 +52,21 @@ function clearMessages() {
     document.getElementById('messages').innerHTML = '';
 }
 
-function createRoom() {
-    const roomName = prompt('Enter a name for the new room:');
-    if (roomName) {
-        socket.emit('create room', roomName, (response) => {
-            if (response.success) {
-                const roomUrl = `${window.location.origin}/room/${response.roomId}?room=${response.roomName}`;
-                alert(`Room created! Share this link: ${roomUrl}`);
-                joinRoom(response.roomName);
-            }
-        });
-    }
+function addMessage(user, message, type = 'other') {
+    const messages = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.innerHTML = `
+        <div class="username">${user}</div>
+        <div class="content">${message}</div>
+    `;
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
 }
 
-socket.on('room joined', (room) => {
-    currentRoom = room;
-    updateRoomHeader();
-});
-
 socket.on('chat message', (msg) => {
-    if (msg.room === currentRoom) {
-        const messages = document.getElementById('messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message';
-        messageDiv.innerHTML = `
-            <div class="username" style="color: ${msg.color}">${msg.username}</div>
-            <div class="content">${msg.message}</div>
-        `;
-        messages.appendChild(messageDiv);
-        messages.scrollTop = messages.scrollHeight;
+    if (msg.room === currentRoom && msg.username !== username) {
+        addMessage(msg.username, msg.message);
     }
 });
 
@@ -119,4 +112,14 @@ socket.on('stop typing', (data) => {
     if (data.room === currentRoom) {
         document.getElementById('typing').innerText = '';
     }
+});
+
+input.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('#rooms button[onclick="joinRoom(\'general\')"]').classList.add('active');
 });
